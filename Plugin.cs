@@ -16,15 +16,16 @@ namespace MrSandmanManMeASand
 		
 		private void Update()
 		{
-			_ply = NewMovement.Instance.gameObject;
-			if (!_ply)
+			if (!_isEnabled)
 				return;
+			
+			if (!NewMovement.Instance)
+				return;
+			_ply = NewMovement.Instance.gameObject;
+			
 			if (_ply.GetComponent<FloorHurt>() == null)
 			{
-				if (_isEnabled)
-				{
-					_ply.AddComponent<FloorHurt>();
-				}
+				_ply.AddComponent<FloorHurt>();
 			}
 		}
 		
@@ -47,7 +48,6 @@ namespace MrSandmanManMeASand
 		private GroundCheck _gc;
 		private NewMovement _nm;
 		private GameObject _prefab;
-		private bool damaging;
 		
 		private void Start()
 		{
@@ -55,30 +55,29 @@ namespace MrSandmanManMeASand
 			_nm = NewMovement.Instance;
 			_prefab = AssetBundle.GetAllLoadedAssetBundles().First(p => p.name == "common")
 															.LoadAsset<GameObject>("HotSand");
-		}
-
-		private void Update()
-		{
-			if (_gc.onGround && !damaging)
-			{
-				damaging = true;
-				StartCoroutine(nameof(DamagePlayer));
-			}
-			else if(!_gc.onGround && damaging)
-			{
-				damaging = false;
-				StopCoroutine(nameof(DamagePlayer));
-			}
+			StartCoroutine(nameof(DamagePlayer));
 		}
 
 		private IEnumerator DamagePlayer()
 		{
 			while (true)
 			{
-				_nm.GetHurt(10, false);
-				Instantiate(_prefab, _nm.gameObject.transform.position, Quaternion.identity);
-				yield return new WaitForSeconds(1f);
+				if (_gc.onGround)
+				{
+					_nm.GetHurt(10, false);
+					Instantiate(_prefab, transform.position, Quaternion.identity);
+					yield return new WaitForSeconds(1f);
+				}
+				else
+				{
+					yield return null;
+				}
 			}
+		}
+
+		private void OnDestroy()
+		{
+			StopCoroutine(nameof(DamagePlayer));
 		}
 	}
 }
