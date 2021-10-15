@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+    </PropertyGroup>
+
+    <!-- figure this our yourself. -->
+    
+    <ItemGroup>
+        <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="BepInEx, Version=5.4.17.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(ULTRAKILLPath)\BepInEx\core\BepInEx.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+
+    <Target Name="CopyToULTRAKILLDir" AfterTargets="AfterBuild">
+        <Copy SourceFiles="$(OutDir)MrSandmanManMeASand.dll" DestinationFolder="$(ULTRAKILLPath)/BepInEx/plugins/" />
+    </Target>
+    
+</Project>
