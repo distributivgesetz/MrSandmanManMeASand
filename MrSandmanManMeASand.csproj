@@ -25,6 +25,9 @@
         <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
             <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(ULTRAKILLPath)\ULTRAKILL_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <Target Name="CopyToULTRAKILLDir" AfterTargets="AfterBuild">
