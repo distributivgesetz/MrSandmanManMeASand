@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 namespace MrSandmanManMeASand
 {
-	[BepInPlugin("net.distrilul.mrsandman", "MrSandmanManMeASand", "1.0")]
+	[BepInPlugin("net.distrilul.mrsandman", "Mr Sandman, Man Me A Sand", "1.1")]
 	[BepInProcess("ULTRAKILL.exe")]
 	public class Plugin : BaseUnityPlugin
 	{
@@ -37,6 +37,13 @@ namespace MrSandmanManMeASand
 						trigger.events.onActivate.AddListener(() => 
 							HudMessageReceiver.Instance.SendHudMessage("The room feels cool, but you can feel " +
 																							"the blistering heat ahead."));
+						break;
+					case "Level 4-2":
+						var sand = GameObject.Find("Dunes").GetComponentsInChildren<HurtZone>();
+						foreach (var zone in sand)
+						{
+							zone.enabled = false;
+						}
 						break;
 					case "Level 4-4":
 						trigger = GameObject.Find("FirstRoom/Room/Cube (1)").GetComponent<ObjectActivator>();
@@ -72,7 +79,7 @@ namespace MrSandmanManMeASand
 				return;
 			}
 			
-			_isEnabled = GUI.Toggle(new Rect(10, Screen.height - 30, 200, 20), _isEnabled, "Enable MrSandman");
+			_isEnabled = GUI.Toggle(new Rect(10, Screen.height - 30, 300, 20), _isEnabled, "Mr. Sandman, Man Me A Sand enabled");
 		}
 	}
 
