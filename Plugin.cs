@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Reflection;
 using BepInEx;
@@ -7,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 namespace MrSandmanManMeASand
 {
-	[BepInPlugin("net.distrilul.mrsandman", "Mr Sandman, Man Me A Sand", "1.1")]
+	[BepInPlugin("net.distrilul.mrsandman", "Mr Sandman, Man Me A Sand", "1.2")]
 	[BepInProcess("ULTRAKILL.exe")]
 	public class Plugin : BaseUnityPlugin
 	{
@@ -89,6 +90,8 @@ namespace MrSandmanManMeASand
 		private GroundCheck _gc;
 		private NewMovement _nm;
 		private GameObject _prefab;
+		private float _sanddamageapplied;
+		private float _sanddamagecooldown;
 
 		private static readonly (string, string[])[] DamageBlacklist =
 		{
@@ -113,9 +116,37 @@ namespace MrSandmanManMeASand
 			StartCoroutine(nameof(DamagePlayer));
 		}
 
-		private static readonly FieldInfo f_gc_currentCol = typeof(GroundCheck)
-			.GetField("currentCol", BindingFlags.NonPublic | BindingFlags.Instance); 
+		private static readonly FieldInfo f_nm_antiHpCooldown = typeof(NewMovement)
+			.GetField("antiHpCooldown", BindingFlags.NonPublic | BindingFlags.Instance);
 		
+		private void Update()
+		{
+			if (_sanddamagecooldown > 0.0f)
+			{
+				_sanddamagecooldown -= Time.deltaTime;
+				return;
+			}
+
+			print(Math.Abs(_nm.antiHp - _sanddamageapplied) < 0.5);
+			
+			if (Math.Abs(_nm.antiHp - _sanddamageapplied) < 0.5)
+			{
+				f_nm_antiHpCooldown.SetValue(_nm, 1f);
+			}
+			
+			if (_sanddamagecooldown <= 0.0f && _sanddamageapplied > 0 && _nm.antiHp <= 99 && _nm.antiHp >= 0)
+			{
+				var prevdamage = _sanddamageapplied;
+				_sanddamageapplied = Mathf.MoveTowards(_sanddamageapplied, 0, Time.deltaTime * 15f);
+				_nm.antiHp -= prevdamage - _sanddamageapplied;
+			}
+
+			_nm.antiHp = Mathf.Clamp(_nm.antiHp, 0, 99);
+		}
+
+		private static readonly FieldInfo f_gc_currentCol = typeof(GroundCheck)
+			.GetField("currentCol", BindingFlags.NonPublic | BindingFlags.Instance);
+
 		private IEnumerator DamagePlayer()
 		{
 			while (true)
@@ -125,6 +156,14 @@ namespace MrSandmanManMeASand
 					yield return null;
 					continue;
 				}
+
+				if (!_gc)
+				{
+					_gc = NewMovement.Instance.gc;
+					yield return null;
+					continue;
+				}
+				
 				var col = (f_gc_currentCol?.GetValue(_gc) as Collider)?.gameObject;
 				if (_gc.onGround && !DamageBlacklist
 					.Where(p => p.Item1 == null || p.Item1 == SceneManager.GetActiveScene().name)
@@ -132,6 +171,12 @@ namespace MrSandmanManMeASand
 					.Any(p => IsParent(col, p)))
 				{
 					_nm.GetHurt(10, false);
+					if (_nm.hp < 100)
+					{
+						_nm.ForceAntiHP((int)_nm.antiHp + 5);
+						_sanddamageapplied += 5;
+						_sanddamagecooldown = 2.0f;
+					}
 					Instantiate(_prefab, transform.position, Quaternion.identity);
 					yield return new WaitForSeconds(1f);
 				}
